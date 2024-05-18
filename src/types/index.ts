@@ -1,3 +1,14 @@
+import { URL } from "url";
+
+export type IContextType = {
+  user: IUser;
+  isLoading: boolean;
+  setUser: React.Dispatch<React.SetStateAction<IUser>>;
+  isAuthenticated: boolean;
+  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+  checkAuthUser: () => Promise<boolean>;
+};
+
 export type INavLink = {
     imgURL: string;
     route: string;
@@ -6,8 +17,7 @@ export type INavLink = {
   
   export type IUpdateUser = {
     userId: string;
-    firstName: string;
-    lastName: string;
+    name: string;
     bio: string;
     imageId: string;
     imageUrl: URL | string;
@@ -34,8 +44,7 @@ export type INavLink = {
   
   export type IUser = {
     id: string;
-    firstName: string;
-    lastName: string;
+    name: string;
     username: string;
     email: string;
     imageUrl: string;
@@ -43,8 +52,7 @@ export type INavLink = {
   };
   
   export type INewUser = {
-    firstName: string;
-    lastName: string;
+    name: string;
     email: string;
     username: string;
     password: string;
