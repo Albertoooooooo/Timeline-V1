@@ -5,12 +5,12 @@ import React, { useEffect, useState } from "react";
 import Loader from "./Loader";
 
 type PostStatsProps = {
-    post: Models.Document;
+    post?: Models.Document;
     userId: string;
 }
 
 const PostStats = ({ post, userId }: PostStatsProps) => {
-    const likesList = post.likes.map((user: Models.Document) => user.$id);
+    const likesList = post?.likes.map((user: Models.Document) => user.$id);
 
     const [likes, setLikes] = useState(likesList);
     const [isSaved, setIsSaved] = useState(false);
@@ -21,7 +21,7 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
 
     const { data: currentUser } = useGetCurrentUser();
 
-    const savedPostRecord = currentUser?.save.find((record: Models.Document) => record.post.$id === post.$id)
+    const savedPostRecord = currentUser?.save.find((record: Models.Document) => record.post.$id === post?.$id)
 
     useEffect(() => {
         setIsSaved(!!savedPostRecord)
@@ -41,7 +41,7 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
         }
 
         setLikes(newLikes);
-        likePost({ postId: post.$id, likesArray: newLikes })
+        likePost({ postId: post?.$id || "", likesArray: newLikes })
     }
 
     const handleSavePost = (event: React.MouseEvent) => {
@@ -52,7 +52,7 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
             setIsSaved(false);
             deleteSavedPost(savedPostRecord.$id)
         } else {
-            savePost({ postId: post.$id, userId})
+            savePost({ postId: post?.$id || "", userId})
             setIsSaved(true);
         }
     }
@@ -73,7 +73,7 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
 
             <div className="flex gap-2">
                 {isSavingPost || isDeletingSaved ? <Loader /> : <img
-                src={isSaved? "assets/icons/saved.svg" : "/assets/icons/save.svg"}
+                src={isSaved? "/assets/icons/saved.svg" : "/assets/icons/save.svg"}
                 alt="like"
                 width={20}
                 height={20}
