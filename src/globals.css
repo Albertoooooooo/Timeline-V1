@@ -112,6 +112,10 @@
     @apply flex flex-col flex-1 items-center gap-10 overflow-scroll py-10 px-5 md:px-8 lg:p-10 custom-scrollbar;
   }
 
+  .button-container {
+    @apply flex flex-col items-center overflow-scroll md:px-8 lg:p-4 custom-scrollbar;
+  }
+
   /* All Users */
   .user-container {
     @apply max-w-5xl flex flex-col items-start w-full gap-6 md:gap-9;
@@ -242,7 +246,7 @@
 
   /* User card */
   .user-card {
-    @apply flex-center flex-col gap-4 border border-dark-4 rounded-[20px] px-5 py-8;
+    @apply flex-center flex-col gap-4 border border-cyan rounded-[20px] px-5 py-8;
   }
 }
 
@@ -266,8 +270,8 @@
   }
 
   /* Button */
-  .shad-button_primary {
-    @apply bg-primary-500 hover:bg-dark-4 text-light-1 flex gap-2 !important;
+  .form-button_primary {
+    @apply bg-primary hover:bg-dark-4 text-light-1 flex gap-2 !important;
   }
 
   .form-button_dark {

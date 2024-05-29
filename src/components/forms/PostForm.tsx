@@ -12,7 +12,7 @@ import { useUserContext } from "@/context/AuthContext"
 import { useToast } from "../ui/use-toast"
 import { useNavigate } from "react-router-dom"
 import { useCreatePost, useUpdatePost } from "@/lib/react-query/queriesAndMutations"
-import { Loader, Loader2 } from "lucide-react"
+import Loader from "../shared/Loader"
 
 type PostFormProps = {
   post?: Models.Document;
@@ -149,7 +149,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
               className="form-button-submit whitespace-nowrap"
               disabled={isLoadingCreate || isLoadingUpdate}
               >
-                {isLoadingCreate || isLoadingUpdate && <Loader2 />}
+                {isLoadingCreate || isLoadingUpdate && <Loader />}
                 {action} Post
               </Button>
             </div>
