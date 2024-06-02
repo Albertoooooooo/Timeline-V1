@@ -253,7 +253,7 @@
 @layer components {
   /* SHADCN COMPONENTS */
   /* Form */
-  .shad-form_label {
+  .form_label {
     @apply text-white !important;
   }
 

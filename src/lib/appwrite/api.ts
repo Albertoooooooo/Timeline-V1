@@ -1,4 +1,4 @@
-import { INewPost, INewUser, IUpdatePost } from "@/types";
+import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 import { ID, Query } from "appwrite";
 import { account, avatars, databases, appwriteConfig, storage } from "./config";
 import { M } from "node_modules/vite/dist/node/types.d-aGj9QkWt";
@@ -126,7 +126,7 @@ export async function createPost(post: INewPost) {
         if(!uploadedFile) throw Error;
 
         // Get file Url
-        const fileUrl = getPostFilePreview(uploadedFile.$id);
+        const fileUrl = getFilePreview(uploadedFile.$id);
 
         if (!fileUrl) {
             await deleteFile(uploadedFile.$id)
@@ -177,7 +177,7 @@ export async function uploadFile(file: File) {
     }
 }
 
-export function getPostFilePreview(fileId: string) {
+export function getFilePreview(fileId: string) {
     try {
         const fileUrl = storage.getFilePreview(
         appwriteConfig.storageId,
@@ -305,7 +305,7 @@ export async function updatePost(post: IUpdatePost) {
             if(!uploadedFile) throw Error;
 
             // Get file Url
-            const fileUrl = getPostFilePreview(uploadedFile.$id);
+            const fileUrl = getFilePreview(uploadedFile.$id);
 
             if (!fileUrl) {
                 await deleteFile(uploadedFile.$id)
@@ -437,3 +437,64 @@ export async function getUserById(userId: string) {
     }
 }
 
+export async function updateUser(user: IUpdateUser) {
+    const hasFileToUpdate = user.file.length > 0;
+    try {
+        let image = {
+            imageUrl: user.imageUrl,
+            imageId: user.imageId,
+        };
+        
+        if (hasFileToUpdate) {
+            // Upload new file to storage
+            const uploadedFile = await uploadFile(user.file[0])
+
+            if (!uploadedFile) throw Error;
+
+            // Get new file url
+            const fileUrl = getFilePreview(uploadedFile.$id);
+            if (!fileUrl) {
+                await deleteFile(uploadedFile.$id);
+                throw Error;
+            }
+
+            image = { ...image, imageUrl: fileUrl, imageId: uploadedFile.$id };
+        }
+
+        // Update user
+        const UpdatedUser = await databases.updateDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.userCollectionId,
+            user.userId,
+            {
+                name: user.name,
+                username: user.username,
+                bio: user.bio,
+                imageUrl: image.imageUrl,
+                imageId: image.imageId,
+            }
+        );
+
+        // Failed update
+        if (!UpdatedUser) {
+
+            // Deletes new file that has been created
+            if (hasFileToUpdate) {
+                await deleteFile(image.imageId);
+            }
+
+            // Throws error if no new file uploaded
+            throw Error;
+        }
+
+        // Deletes old file after update
+        if (user.imageId && hasFileToUpdate) {
+            await deleteFile(user.imageId);
+        }
+
+        return updateUser;
+
+    } catch (error) {
+        console.log(error);
+    }
+}
