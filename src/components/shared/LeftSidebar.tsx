@@ -19,6 +19,7 @@ const LeftSidebar = () => {
     }, [isSuccess])
 
     return (
+        <div className="overflow-scroll custom-scrollbar">
         <nav className="leftsidebar">
             <div className="flex flex-col gap-11">
                 <Link to = "/" className = "flex gap-3 items-center">
@@ -60,7 +61,7 @@ const LeftSidebar = () => {
                                     <img 
                                     src={link.imgURL}
                                     alt={link.label}
-                                    className={`group-hover:invert-white ${isActive && "invert-white"}`}
+                                    className={`group-hover:invert-white ${isActive ? "invert-white" : "invert-cyan"}`}
                                     />
                                     {link.label}
                                 </NavLink>
@@ -74,12 +75,13 @@ const LeftSidebar = () => {
             variant="ghost" 
             className="ui-button_ghost py-14 group-hover:invert-white" 
             onClick={() => signOut()}>
-                <img src="/assets/icons/logout.svg" alt="logout"/>
+                <img src="/assets/icons/logout.svg" alt="logout" className="invert-cyan"/>
                 <p className="small-medium lg:base-medium">
                     Logout
                 </p>
             </Button>
         </nav>
+        </div>
     )
     }
 

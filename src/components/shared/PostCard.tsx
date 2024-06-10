@@ -45,7 +45,7 @@ const PostCard = ({ post }: PostCardProps) => {
                     <img
                     src="/assets/icons/edit.svg"
                     alt="edit"
-                    className={`${user.id !== post.creator.$id && "hidden" }`}
+                    className={`invert-cyan ${user.id !== post.creator.$id && "hidden" }`}
                     width={20}
                     height={20}
                     />

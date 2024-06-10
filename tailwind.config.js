@@ -21,13 +21,13 @@ module.exports = {
     extend: {
       colors: {
         'primary': '#000c1c',
-        'primary-500': '#877EFF',
+        'primary-500': '#5680e9',
         'primary-600': '#5D5FEF',
         'secondary-500': '#FFB620',
         'off-white': '#D0DFFF',
         'red': '#FF5A5A',
         'green': '#33FF59',
-        'cyan': '#00fffe',
+        'cyan': '#6dd9f5',
         'error-message': '#FFF633',
         'dark-1': '#000c1c',
         'dark-2': '#09090A',
@@ -66,5 +66,7 @@ module.exports = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [
+    require('tailwindcss-animate')
+  ],
 };

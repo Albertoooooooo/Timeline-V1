@@ -23,6 +23,7 @@ export type INavLink = {
     imageId: string;
     imageUrl: URL | string;
     file: File[];
+    friends: string;
   };
   
   export type INewPost = {

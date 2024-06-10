@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery, QueryClient, } from "@tanstack/react-query";
-import { checkCurrentAccount, createPost, createUserAccount, signInAccount, signOutAccount, getRecentPosts, likePost, savePost, deleteSavedPost, getCurrentUser, getPostById, updatePost, deletePost, getInfinitePosts, searchPosts, getUsers, getUserById, updateUser } from "../appwrite/api";
+import { checkCurrentAccount, createPost, createUserAccount, signInAccount, signOutAccount, getRecentPosts, likePost, savePost, deleteSavedPost, getCurrentUser, getPostById, updatePost, deletePost, getInfinitePosts, searchPosts, getUsers, getUserById, updateUser, addFriend } from "../appwrite/api";
 import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 import { QUERY_KEYS } from "./queryKeys";
 
@@ -68,6 +68,22 @@ export const useLikePost = () => {
             queryClient.invalidateQueries({
                 queryKey: [QUERY_KEYS.GET_CURRENT_USER]
             })
+        }
+    })
+}
+
+export const useFriendUser = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({userId, friendsArray}: {userId: string; friendsArray: string[]}) => addFriend(userId, friendsArray),
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_USERS]
+            })
+        },
+        onError: (error) => {
+            console.error("Failed to update friends:", error);
         }
     })
 }

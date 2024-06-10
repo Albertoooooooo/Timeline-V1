@@ -55,6 +55,7 @@ const PostDetails = () => {
                   width={24}
                   height={24}
                   alt="edit"
+                  className="invert-cyan"
                 />
               </Link>
 

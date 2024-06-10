@@ -498,3 +498,22 @@ export async function updateUser(user: IUpdateUser) {
         console.log(error);
     }
 }
+
+export async function addFriend(userId: string, friendsArray: string[]) {
+    try {
+
+        const updateUser = await databases.updateDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.userCollectionId,
+            userId,
+            {friends: friendsArray}
+        )
+
+        if (!updateUser) throw Error;
+
+        return updateUser;
+
+    } catch  (error) {
+        console.log(error);
+    }
+}
