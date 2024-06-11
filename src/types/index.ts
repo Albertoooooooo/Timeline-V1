@@ -43,6 +43,12 @@ export type INavLink = {
     location?: string;
     tags?: string;
   };
+
+  export type INewComment = {
+    userId: string;
+    postId: string;
+    caption: string;
+  }
   
   export type IUser = {
     id: string;

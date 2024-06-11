@@ -2,9 +2,11 @@ import GridPostList from '@/components/shared/GridPostList';
 import Loader from '@/components/shared/Loader';
 import PostStats from '@/components/shared/PostStats';
 import Button from '@/components/ui/button';
+import { SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useUserContext } from '@/context/AuthContext';
 import { useDeletePost, useGetPostById, useGetUserPosts } from '@/lib/react-query/queriesAndMutations'
 import { multiFormatDateString } from '@/lib/utils';
+import { Sheet } from 'lucide-react';
 
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
@@ -117,12 +119,31 @@ const PostDetails = () => {
             </ul>
           </div>
 
-          <div className="w-full">
+          <div className="">
             <PostStats post={post} userId={user.id}/>
           </div>
         </div>
       </div>
       )}
+      
+      <div className="w-full max-w-5xl">
+        {/* <hr className="border w-full border-cyan" />
+        <h3 className="body-bold md:h3-bold w-full mt-10 mb-5">
+          Comments
+        </h3>
+        <div className="flex">
+        <img
+          src={"/assets/icons/message-circle.svg"}
+          alt="comment"
+          className="invert-cyan cursor-pointer"
+          width={20}
+          height={20}
+        />
+        <p className="ml-2">Add comment</p>
+        </div> */}
+        <Sheet>
+        </Sheet>
+      </div>
 
       <div className="w-full max-w-5xl">
         <hr className="border w-full border-cyan" />
