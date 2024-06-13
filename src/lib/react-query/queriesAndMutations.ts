@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery, QueryClient, } from "@tanstack/react-query";
-import { checkCurrentAccount, createPost, createUserAccount, signInAccount, signOutAccount, getRecentPosts, likePost, savePost, deleteSavedPost, getCurrentUser, getPostById, updatePost, deletePost, getInfinitePosts, searchPosts, getUsers, getUserById, updateUser, addFriend, getUserPosts } from "../appwrite/api";
-import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
+import { checkCurrentAccount, createPost, createUserAccount, signInAccount, signOutAccount, getRecentPosts, likePost, savePost, deleteSavedPost, getCurrentUser, getPostById, updatePost, deletePost, getInfinitePosts, searchPosts, getUsers, getUserById, updateUser, addFriend, getUserPosts, createComment } from "../appwrite/api";
+import { INewComment, INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 import { QUERY_KEYS } from "./queryKeys";
 
 export const useCreateUserAccount = () => {
@@ -38,6 +38,19 @@ export const useCreatePost = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
+            })
+        }
+    })
+}
+
+export const useCreateComment = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (comment: INewComment) => createComment(comment),
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_RECENT_COMMENTS]
             })
         }
     })
@@ -141,6 +154,14 @@ export const useGetPostById = (postId: string) => {
     })
 }
 
+export const useGetUserPosts = (userId?: string) => {
+    return useQuery({
+      queryKey: [QUERY_KEYS.GET_USER_POSTS, userId],
+      queryFn: () => getUserPosts(userId),
+      enabled: !!userId,
+    });
+  };
+
 export const useUpdatePost = () => {
     const queryClient = useQueryClient();
 
@@ -158,8 +179,8 @@ export const useDeletePost = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ postId, imageId }: {postId?: string; imageId: string}) => deletePost(postId, imageId),
-        onSuccess: () => {
+        mutationFn: ({ postId, imageId }: {postId?: string, imageId: string}) => deletePost(postId, imageId),
+        onSuccess: (data) => {
             queryClient.invalidateQueries({
                 queryKey: [QUERY_KEYS.GET_RECENT_POSTS]
             })
@@ -218,13 +239,5 @@ export const useUpdateUser = () => {
                 queryKey: [QUERY_KEYS.GET_USER_BY_ID, data?.$id],
             });
         }
-    })
-}
-
-export const useGetUserPosts = (userId?: string) => {
-    return useQuery({
-        queryKey: [QUERY_KEYS.GET_USER_POSTS, userId],
-        queryFn: () => getUserPosts(userId),
-        enabled: !!userId
     })
 }

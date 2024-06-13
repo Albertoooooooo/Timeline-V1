@@ -8,6 +8,7 @@ export const appwriteConfig = {
     userCollectionId: "6638032b00138fb47f33",
     postCollectionId: "663802fd0038cf88ee68",
     savesCollectionID: "6638036900206405c071",
+    commentCollectionId: "666764680002664fb199",
 }
 
 export const client = new Client();

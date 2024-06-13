@@ -2,13 +2,13 @@ import GridPostList from '@/components/shared/GridPostList';
 import Loader from '@/components/shared/Loader';
 import PostStats from '@/components/shared/PostStats';
 import Button from '@/components/ui/button';
-import { SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useUserContext } from '@/context/AuthContext';
 import { useDeletePost, useGetPostById, useGetUserPosts } from '@/lib/react-query/queriesAndMutations'
 import { multiFormatDateString } from '@/lib/utils';
-import { Sheet } from 'lucide-react';
+import { DrawerClose, Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger} from "@/components/ui/drawer"
 
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import CommentForm from '@/components/forms/CommentForm';
 
 const PostDetails = () => {
   const { id } = useParams();
@@ -119,30 +119,60 @@ const PostDetails = () => {
             </ul>
           </div>
 
-          <div className="">
+          <div className="w-full">
             <PostStats post={post} userId={user.id}/>
           </div>
         </div>
       </div>
-      )}
+
       
-      <div className="w-full max-w-5xl">
-        {/* <hr className="border w-full border-cyan" />
-        <h3 className="body-bold md:h3-bold w-full mt-10 mb-5">
-          Comments
-        </h3>
-        <div className="flex">
-        <img
-          src={"/assets/icons/message-circle.svg"}
-          alt="comment"
-          className="invert-cyan cursor-pointer"
-          width={20}
-          height={20}
-        />
-        <p className="ml-2">Add comment</p>
-        </div> */}
-        <Sheet>
-        </Sheet>
+      )}
+
+      <hr className="border w-full border-cyan" />
+      <h3 className="body-bold md:h3-bold w-full">
+        Comments
+      </h3>
+      <div className="flex w-full">
+
+        <Drawer>
+          <DrawerTrigger>
+            <Button>
+              <div className="flex w-full">
+                <img
+                  src={"/assets/icons/message-circle.svg"}
+                  alt="comment"
+                  className="invert-cyan cursor-pointer"
+                  width={20}
+                  height={20}
+                />
+                <p className="ml-2">Add comment</p>
+              </div>
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>
+                <div className="flex">
+                  Add Comment
+                  <img 
+                    src={"/assets/icons/corner-right-down.svg"}
+                    alt="down-arrow"
+                    className="invert-white ml-2"
+                    width={20}
+                    height={20}
+                  />
+                </div>
+                </DrawerTitle>
+              <CommentForm post={post} action="Create" />
+            </DrawerHeader>
+            {/* <DrawerFooter>
+              <Button className="form-input">Submit</Button>
+              <DrawerClose>
+                <Button variant="outline">Cancel</Button>
+              </DrawerClose>
+            </DrawerFooter> */}
+          </DrawerContent>
+        </Drawer>
       </div>
 
       <div className="w-full max-w-5xl">

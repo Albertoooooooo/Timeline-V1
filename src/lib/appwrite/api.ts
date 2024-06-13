@@ -1,4 +1,4 @@
-import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
+import { INewComment, INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 import { ID, Query } from "appwrite";
 import { account, avatars, databases, appwriteConfig, storage } from "./config";
 import { M } from "node_modules/vite/dist/node/types.d-aGj9QkWt";
@@ -163,6 +163,27 @@ export async function createPost(post: INewPost) {
     }
 }
 
+export async function createComment(comment: INewComment) {
+    try {
+        const newComment = await databases.createDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.commentCollectionId,
+            ID.unique(),
+            {
+                creator: comment.userId,
+                post: comment.postId,
+                caption: comment.caption,
+            }
+        )
+    
+        if (!newComment) throw Error;
+    
+        return newComment;
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 export async function uploadFile(file: File) {
     try {
         const uploadedFile = await storage.createFile(
@@ -207,6 +228,24 @@ export async function deleteFile(fileId: string) {
         console.log(error);
     }
 }
+
+export async function getUserPosts(userId?: string) {
+    if (!userId) return;
+  
+    try {
+      const post = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.postCollectionId,
+        [Query.equal("creator", userId), Query.orderDesc("$createdAt")]
+      );
+  
+      if (!post) throw Error;
+  
+      return post;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
 export async function getRecentPosts() {
     const posts = await databases.listDocuments(
@@ -346,20 +385,20 @@ export async function updatePost(post: IUpdatePost) {
 }
 
 export async function deletePost(postId?: string, imageId?: string) {
-    if (!postId || !imageId) throw Error;
+    if (!postId || !imageId) return;
 
     try {
         const statusCode = await databases.deleteDocument(
-            appwriteConfig.databaseId,
-            appwriteConfig.postCollectionId,
-            postId
-        )
+        appwriteConfig.databaseId,
+        appwriteConfig.postCollectionId,
+        postId
+        );
 
         if (!statusCode) throw Error;
 
         await deleteFile(imageId);
 
-        return { status: "ok" };
+        return { status: "Ok" };
     } catch (error) {
         console.log(error);
     }
@@ -519,23 +558,5 @@ export async function addFriend(userId: string, friendsArray: string[]) {
 
     } catch  (error) {
         console.log(error);
-    }
-}
-
-export async function getUserPosts(userId?: string) {
-    if(!userId) return;
-
-    try {
-        const post = await databases.listDocuments(
-            appwriteConfig.databaseId,
-            appwriteConfig.postCollectionId,
-            [Query.equal("creator", userId), Query.orderDesc("$createdAt")]
-        );
-
-        if (!post) throw Error;
-
-        return post
-    } catch (error) {
-        console.log(error)
     }
 }

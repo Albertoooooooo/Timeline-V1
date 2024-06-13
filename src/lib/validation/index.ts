@@ -19,6 +19,10 @@ export const PostValidation = z.object({
   tags: z.string(),
 })
 
+export const CommentValidation = z.object({
+  caption: z.string().min(5).max(2200)
+})
+
 export const ProfileValidation = z.object({
   file: z.custom<File[]>(),
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),

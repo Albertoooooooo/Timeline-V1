@@ -46,7 +46,7 @@ export type INavLink = {
 
   export type INewComment = {
     userId: string;
-    postId: string;
+    postId: string | undefined;
     caption: string;
   }
   
