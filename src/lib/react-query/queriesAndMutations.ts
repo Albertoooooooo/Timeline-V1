@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery, QueryClient, } from "@tanstack/react-query";
-import { checkCurrentAccount, createPost, createUserAccount, signInAccount, signOutAccount, getRecentPosts, likePost, savePost, deleteSavedPost, getCurrentUser, getPostById, updatePost, deletePost, getInfinitePosts, searchPosts, getUsers, getUserById, updateUser, addFriend, getUserPosts, createComment } from "../appwrite/api";
+import { checkCurrentAccount, createPost, createUserAccount, signInAccount, signOutAccount, getRecentPosts, likePost, savePost, deleteSavedPost, getCurrentUser, getPostById, updatePost, deletePost, getInfinitePosts, searchPosts, getUsers, getUserById, updateUser, addFriend, getUserPosts, createComment, getPostComments, likeComment } from "../appwrite/api";
 import { INewComment, INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 import { QUERY_KEYS } from "./queryKeys";
 
@@ -85,6 +85,14 @@ export const useLikePost = () => {
     })
 }
 
+export const useLikeComment = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ commentId, likesArray }: { commentId: string; likesArray: string[]}) => likeComment(commentId, likesArray)
+    })
+}
+
 export const useFriendUser = () => {
     const queryClient = useQueryClient();
 
@@ -160,7 +168,15 @@ export const useGetUserPosts = (userId?: string) => {
       queryFn: () => getUserPosts(userId),
       enabled: !!userId,
     });
-  };
+};
+
+export const useGetPostComments = (postId?: string) => {
+    return useQuery({
+        queryKey: [QUERY_KEYS.GET_RECENT_COMMENTS],
+        queryFn: () => getPostComments(postId),
+        enabled: !! postId
+    })
+}
 
 export const useUpdatePost = () => {
     const queryClient = useQueryClient();

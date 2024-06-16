@@ -245,7 +245,25 @@ export async function getUserPosts(userId?: string) {
     } catch (error) {
       console.log(error);
     }
-  }
+}
+
+export async function getPostComments(postId?: string) {
+    if (!postId) return;
+
+    try {
+        const comment = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.commentCollectionId,
+            [Query.equal("post", postId), Query.orderAsc("$createdAt")]
+        );
+
+        if (!comment) throw Error;
+
+        return comment;
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 export async function getRecentPosts() {
     const posts = await databases.listDocuments(
@@ -258,6 +276,7 @@ export async function getRecentPosts() {
 
     return posts;
 }
+
 
 export async function likePost(postId: string, likesArray: string[]) {
     try{
@@ -275,6 +294,25 @@ export async function likePost(postId: string, likesArray: string[]) {
         return updatedPost
     } catch (error) {
         console.log(error)
+    }
+}
+
+export async function likeComment(commentId: string, likesArray: string[]) {
+    try {
+        const updatedComment = await databases.updateDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.commentCollectionId,
+            commentId,
+            {
+                likes: likesArray
+            }
+        )
+
+        if(!updatedComment) throw Error;
+
+        return updatedComment;
+    } catch (error) {
+        console.log(error);
     }
 }
 

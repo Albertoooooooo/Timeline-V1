@@ -25,6 +25,7 @@ const UserStats = ({ value, label }: UserStatsProps) => (
 const Profile = () => {
   
   const { id } = useParams();
+  console.log("Profile id: ",id)
   const { user } = useUserContext();
   const { pathname } = useLocation();
 

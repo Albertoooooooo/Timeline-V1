@@ -3,12 +3,14 @@ import Loader from '@/components/shared/Loader';
 import PostStats from '@/components/shared/PostStats';
 import Button from '@/components/ui/button';
 import { useUserContext } from '@/context/AuthContext';
-import { useDeletePost, useGetPostById, useGetUserPosts } from '@/lib/react-query/queriesAndMutations'
+import { useDeletePost, useGetPostById, useGetPostComments, useGetUserPosts } from '@/lib/react-query/queriesAndMutations'
 import { multiFormatDateString } from '@/lib/utils';
 import { DrawerClose, Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger} from "@/components/ui/drawer"
-
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import CommentForm from '@/components/forms/CommentForm';
+import CommentCard from '@/components/shared/CommentCard';
+import { Models } from 'appwrite';
+import { useEffect, useState } from 'react';
 
 const PostDetails = () => {
   const { id } = useParams();
@@ -16,10 +18,23 @@ const PostDetails = () => {
   const { user } = useUserContext();
 
   const { data: post, isPending } = useGetPostById(id || "");
-  const { data: userPosts, isLoading: isUserPostLoading } = useGetUserPosts(
-    post?.creator.$id
-  );
+  const { data: userPosts, isLoading: isUserPostLoading } = useGetUserPosts(post?.creator.$id);
+  const { data: postComments, isPending: isCommentLoading, refetch: refetchComments} = useGetPostComments(post?.$id);
+  console.log("current post comments: ", postComments)
   const { mutate: deletePost } = useDeletePost();
+
+  const [currentComments, setCurrentComments] = useState<Models.Document[]>([])
+  const [loadingComments, setLoadingComments] = useState(false);
+
+  useEffect(() => {
+    if(post?.$id) {
+      setLoadingComments(true);
+      refetchComments().then((response) => {
+        setCurrentComments(response.data?.documents || []);
+        setLoadingComments(false);
+      })
+    }
+  }, [post?.$id, refetchComments])
 
   const relatedPosts = userPosts?.documents.filter(
     (userPost) => userPost.$id !== id
@@ -165,14 +180,20 @@ const PostDetails = () => {
                 </DrawerTitle>
               <CommentForm post={post} action="Create" />
             </DrawerHeader>
-            {/* <DrawerFooter>
-              <Button className="form-input">Submit</Button>
-              <DrawerClose>
-                <Button variant="outline">Cancel</Button>
-              </DrawerClose>
-            </DrawerFooter> */}
           </DrawerContent>
         </Drawer>
+      </div>
+
+      <div className="w-full">
+        {loadingComments ? (
+          <Loader />
+        ) : (
+          <ul className="flex flex-col flex-1 gap-9 w-full">
+            {currentComments.map((comment: Models.Document) => (
+            <CommentCard key={comment.$id} comments={comment} />
+          ))}
+          </ul>
+        )}
       </div>
 
       <div className="w-full max-w-5xl">
@@ -181,7 +202,7 @@ const PostDetails = () => {
         <h3 className="body-bold md:h3-bold w-full my-10">
           More Related Posts
         </h3>
-        {isUserPostLoading || !relatedPosts ? (
+        {isUserPostLoading || !relatedPosts || loadingComments ? (
           <Loader />
         ) : (
           <GridPostList posts={relatedPosts} />
