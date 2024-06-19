@@ -42,11 +42,9 @@ const FilterResults = ({ isFilterFetching, filteredPosts }: FilterResultsProps) 
 }
 
 const Explore = () => {
-  const { ref, inView } = useInView();
-
   const [searchValue, setSearchValue] = useState("")
   const debouncedValue = useDebounce(searchValue, 500);
-  const [selectedFilter, setSelectedFilter] = useState("all");
+  const [selectedFilter, setSelectedFilter] = useState("latest");
   const currentFilter = selectedFilter
   console.log(currentFilter)
 
@@ -110,7 +108,7 @@ const Explore = () => {
       </div>
 
       <div className="flex-between w-full max-w-5xl mt-16 mb-7">
-        <h3 className="body-bold md:h3-bold">Popular Today</h3>
+        <h3 className="body-bold md:h3-bold">Explore</h3>
 
         <div className="flex-center gap-3 bg-primary rounded-xl px-4 py-2 cursor-pointer">
           {/* <p className="small-medium md:base-medium text-light-2">All</p>
@@ -122,13 +120,13 @@ const Explore = () => {
           /> */}
           <Select onValueChange={(value) => setSelectedFilter(value)}>
             <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="All" />
+              <SelectValue placeholder="Latest" />
             </SelectTrigger>
             <SelectContent className="bg-primary">
-              <SelectItem value="all" className="ui-select-hover">All</SelectItem>
               <SelectItem value="latest" className="ui-select-hover">Latest</SelectItem>
-              <SelectItem value="most-liked" className="ui-select-hover">Most Liked</SelectItem>
               <SelectItem value="oldest" className="ui-select-hover">Oldest</SelectItem>
+              <SelectItem value="most-viewed" className="ui-select-hover">Popular</SelectItem>
+              <SelectItem value="most-liked" className="ui-select-hover">Most Liked</SelectItem>
               {/* <SelectItem value="popular" className="ui-select-hover">Popular</SelectItem> */}
             </SelectContent>
           </Select>

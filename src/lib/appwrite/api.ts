@@ -277,17 +277,10 @@ export async function getRecentPosts() {
     return posts;
 }
 
-
 export async function likePost(postId: string, likesArray: string[]) {
     try{
-        const post = await databases.getDocument(
-            appwriteConfig.databaseId,
-            appwriteConfig.postCollectionId,
-            postId
-        );
 
-        const updatedLikes = [...post.likes];
-        const updatedLikesCount = updatedLikes.length + 1
+        const updatedLikesCount = likesArray.length;
 
         const updatedPost = await databases.updateDocument(
             appwriteConfig.databaseId,
@@ -302,6 +295,33 @@ export async function likePost(postId: string, likesArray: string[]) {
         if(!updatedPost) throw Error;
 
         return updatedPost
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export async function incrementPostViews(postId: string) {
+    try {
+        const post = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.postCollectionId,
+            postId
+        );
+
+        const updatedViewsCount = (post.postViews || 0) + 1
+
+        const updatedPost = await databases.updateDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.postCollectionId,
+            postId,
+            {
+                postViews: updatedViewsCount
+            },
+        )
+
+        if (!updatedPost) throw Error
+
+        return updatedPost;
     } catch (error) {
         console.log(error)
     }
@@ -490,9 +510,6 @@ export async function getFilterPosts(selectedFilter: string) {
     const queries: any[] = [Query.limit(20)];
 
     switch (selectedFilter) {
-        case "all":
-            queries.push(Query.orderDesc('$createdAt'));
-            break;
         case "latest":
             queries.push(Query.orderDesc('$createdAt'));
             break;
@@ -502,8 +519,8 @@ export async function getFilterPosts(selectedFilter: string) {
         case "most-liked":
             queries.push(Query.orderDesc('likesCount')); // Assuming 'views' is a field in your collection
             break;
-        case "popular":
-            queries.push(Query.orderDesc('views')); // Assuming 'views' is a field in your collection
+        case "most-viewed":
+            queries.push(Query.orderDesc('postViews')); // Assuming 'views' is a field in your collection
             break;
     }
 

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery, QueryClient, } from "@tanstack/react-query";
-import { checkCurrentAccount, createPost, createUserAccount, signInAccount, signOutAccount, getRecentPosts, likePost, savePost, deleteSavedPost, getCurrentUser, getPostById, updatePost, deletePost, searchPosts, getUsers, getUserById, updateUser, addFriend, getUserPosts, createComment, getPostComments, likeComment, getFilterPosts, getAllPosts } from "../appwrite/api";
+import { checkCurrentAccount, createPost, createUserAccount, signInAccount, signOutAccount, getRecentPosts, likePost, savePost, deleteSavedPost, getCurrentUser, getPostById, updatePost, deletePost, searchPosts, getUsers, getUserById, updateUser, addFriend, getUserPosts, createComment, getPostComments, likeComment, getFilterPosts, getAllPosts, incrementPostViews } from "../appwrite/api";
 import { INewComment, INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 import { QUERY_KEYS } from "./queryKeys";
 
@@ -80,6 +80,9 @@ export const useLikePost = () => {
             })
             queryClient.invalidateQueries({
                 queryKey: [QUERY_KEYS.GET_CURRENT_USER]
+            })
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_FILTER_POSTS]
             })
         }
     })
@@ -201,6 +204,12 @@ export const useDeletePost = () => {
                 queryKey: [QUERY_KEYS.GET_RECENT_POSTS]
             })
         }
+    })
+}
+
+export const useAddView = () => {
+    return useMutation({
+        mutationFn: ({ postId }: {postId: string}) => incrementPostViews(postId)
     })
 }
 

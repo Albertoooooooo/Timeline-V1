@@ -3,7 +3,7 @@ import Loader from '@/components/shared/Loader';
 import PostStats from '@/components/shared/PostStats';
 import Button from '@/components/ui/button';
 import { useUserContext } from '@/context/AuthContext';
-import { useDeletePost, useGetPostById, useGetPostComments, useGetUserPosts } from '@/lib/react-query/queriesAndMutations'
+import { useAddView, useDeletePost, useGetPostById, useGetPostComments, useGetUserPosts } from '@/lib/react-query/queriesAndMutations'
 import { multiFormatDateString } from '@/lib/utils';
 import { DrawerClose, Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger} from "@/components/ui/drawer"
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -11,6 +11,7 @@ import CommentForm from '@/components/forms/CommentForm';
 import CommentCard from '@/components/shared/CommentCard';
 import { Models } from 'appwrite';
 import { useEffect, useState } from 'react';
+import { incrementPostViews } from '@/lib/appwrite/api';
 
 const PostDetails = () => {
   const { id } = useParams();
@@ -22,6 +23,7 @@ const PostDetails = () => {
   const { data: postComments, isPending: isCommentLoading, refetch: refetchComments} = useGetPostComments(post?.$id);
   console.log("current post comments: ", postComments)
   const { mutate: deletePost } = useDeletePost();
+  const { mutate: addView, isPending: isAddingView } = useAddView();
 
   const [currentComments, setCurrentComments] = useState<Models.Document[]>([])
   const [loadingComments, setLoadingComments] = useState(false);
@@ -36,6 +38,13 @@ const PostDetails = () => {
     }
   }, [post?.$id, refetchComments])
 
+  useEffect(() => {
+    if (id) {
+      console.log("this should only run once")
+      handleAddView();
+    }
+  }, [id]);
+
   const relatedPosts = userPosts?.documents.filter(
     (userPost) => userPost.$id !== id
   )
@@ -44,6 +53,17 @@ const PostDetails = () => {
     deletePost({ postId: id, imageId: post?.imageId })
     navigate(-1)  
   };
+
+  const handleAddView = () => {
+    if(id) {
+      addView({postId: id})
+    }
+  }
+
+  if (isPending || !post) {
+    return <Loader />;
+  }
+
 
   return (
     <div className="post_details-container">
