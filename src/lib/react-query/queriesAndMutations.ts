@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery, QueryClient, } from "@tanstack/react-query";
-import { checkCurrentAccount, createPost, createUserAccount, signInAccount, signOutAccount, getRecentPosts, likePost, savePost, deleteSavedPost, getCurrentUser, getPostById, updatePost, deletePost, getInfinitePosts, searchPosts, getUsers, getUserById, updateUser, addFriend, getUserPosts, createComment, getPostComments, likeComment } from "../appwrite/api";
+import { checkCurrentAccount, createPost, createUserAccount, signInAccount, signOutAccount, getRecentPosts, likePost, savePost, deleteSavedPost, getCurrentUser, getPostById, updatePost, deletePost, searchPosts, getUsers, getUserById, updateUser, addFriend, getUserPosts, createComment, getPostComments, likeComment, getFilterPosts, getAllPosts } from "../appwrite/api";
 import { INewComment, INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 import { QUERY_KEYS } from "./queryKeys";
 
@@ -205,18 +205,9 @@ export const useDeletePost = () => {
 }
 
 export const useGetPosts = () => {
-    return useInfiniteQuery({
-        queryKey: [QUERY_KEYS.GET_INFINITE_POSTS],
-        queryFn: getInfinitePosts,
-        getNextPageParam: (lastPage) => {
-            if(lastPage && lastPage.documents.length === 0) {
-                return null;
-            }
-
-            const lastId = lastPage?.documents[lastPage.documents.length - 1].$id
-
-            return lastId
-        }
+    return useQuery({
+        queryKey: [QUERY_KEYS.GET_ALL_POSTS],
+        queryFn: getAllPosts,
     })
 }
 
@@ -225,6 +216,14 @@ export const useSearchPosts = (searchTerm: string) => {
         queryKey: [QUERY_KEYS.SEARCH_POSTS, searchTerm],
         queryFn: () => searchPosts(searchTerm),
         enabled: !!searchTerm
+    })
+}
+
+export const useGetFilterPosts = (selectedFilter: string) => {
+    return useQuery({
+        queryKey: [QUERY_KEYS.GET_FILTER_POSTS, selectedFilter],
+        queryFn: () => getFilterPosts(selectedFilter),
+        enabled: !!selectedFilter
     })
 }
 

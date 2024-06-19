@@ -280,12 +280,22 @@ export async function getRecentPosts() {
 
 export async function likePost(postId: string, likesArray: string[]) {
     try{
+        const post = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.postCollectionId,
+            postId
+        );
+
+        const updatedLikes = [...post.likes];
+        const updatedLikesCount = updatedLikes.length + 1
+
         const updatedPost = await databases.updateDocument(
             appwriteConfig.databaseId,
             appwriteConfig.postCollectionId,
             postId,
             {
-                likes: likesArray
+                likes: likesArray,
+                likesCount: updatedLikesCount,
             }
         )
 
@@ -442,13 +452,8 @@ export async function deletePost(postId?: string, imageId?: string) {
     }
 }
 
-export async function getInfinitePosts({ pageParam }: { pageParam: number}) {
+export async function getAllPosts() {
     const queries: any[] = [Query.orderDesc(`$updatedAt`), Query.limit(20)]
-
-    if(pageParam) {
-        queries.push(Query.cursorAfter(pageParam.toString()));
-    }
-
     try {
         const posts = await databases.listDocuments(
             appwriteConfig.databaseId,
@@ -470,6 +475,43 @@ export async function searchPosts(searchTerm: string) {
             appwriteConfig.databaseId,
             appwriteConfig.postCollectionId,
             [Query.search("caption", searchTerm)]
+        )
+
+        if(!posts) throw Error;
+
+        return posts;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export async function getFilterPosts(selectedFilter: string) {
+    
+    const queries: any[] = [Query.limit(20)];
+
+    switch (selectedFilter) {
+        case "all":
+            queries.push(Query.orderDesc('$createdAt'));
+            break;
+        case "latest":
+            queries.push(Query.orderDesc('$createdAt'));
+            break;
+        case "oldest":
+            queries.push(Query.orderAsc('$createdAt'));
+            break;
+        case "most-liked":
+            queries.push(Query.orderDesc('likesCount')); // Assuming 'views' is a field in your collection
+            break;
+        case "popular":
+            queries.push(Query.orderDesc('views')); // Assuming 'views' is a field in your collection
+            break;
+    }
+
+    try {
+        const posts = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.postCollectionId,
+            queries
         )
 
         if(!posts) throw Error;

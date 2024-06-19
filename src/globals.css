@@ -298,4 +298,8 @@
   .ui-button_ghost {
     @apply flex gap-4 items-center justify-start hover:bg-transparent hover:text-white !important;
   }
+
+  .ui-select-hover {
+    @apply hover:bg-dark-4 h-9 rounded !important;
+  }
 }
