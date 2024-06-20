@@ -55,10 +55,6 @@ const Explore = () => {
 
   console.log("all posts:", posts)
 
-
-  
-
-
   if (!posts) {
     return (
       <div className="flex-center w-full h-full">

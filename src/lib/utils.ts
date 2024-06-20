@@ -40,7 +40,12 @@ export const multiFormatDateString = (timestamp: string = ""): string => {
 
   switch (true) {
     case Math.floor(diffInDays) >= 30:
-      return multiFormatDateString(timestamp);
+      // Instead of calling itself, format the date as a readable string.
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
     case Math.floor(diffInDays) === 1:
       return `${Math.floor(diffInDays)} day ago`;
     case Math.floor(diffInDays) > 1 && diffInDays < 30:

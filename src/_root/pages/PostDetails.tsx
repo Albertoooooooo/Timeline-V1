@@ -12,6 +12,7 @@ import CommentCard from '@/components/shared/CommentCard';
 import { Models } from 'appwrite';
 import { useEffect, useState } from 'react';
 import { incrementPostViews } from '@/lib/appwrite/api';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 const PostDetails = () => {
   const { id } = useParams();
@@ -21,12 +22,12 @@ const PostDetails = () => {
   const { data: post, isPending } = useGetPostById(id || "");
   const { data: userPosts, isLoading: isUserPostLoading } = useGetUserPosts(post?.creator.$id);
   const { data: postComments, isPending: isCommentLoading, refetch: refetchComments} = useGetPostComments(post?.$id);
-  console.log("current post comments: ", postComments)
-  const { mutate: deletePost } = useDeletePost();
+  const { mutateAsync: deletePost, isPending: isDeletingPost } = useDeletePost();
   const { mutate: addView, isPending: isAddingView } = useAddView();
 
   const [currentComments, setCurrentComments] = useState<Models.Document[]>([])
   const [loadingComments, setLoadingComments] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if(post?.$id) {
@@ -49,9 +50,16 @@ const PostDetails = () => {
     (userPost) => userPost.$id !== id
   )
 
-  const handleDeletePost = () => {
-    deletePost({ postId: id, imageId: post?.imageId })
-    navigate(-1)  
+  const handleDeletePost = async () => {
+    try {
+      setIsDeleting(true);
+      await deletePost({ postId: id, imageId: post?.imageId })
+      navigate(-1)
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleAddView = () => {
@@ -125,19 +133,37 @@ const PostDetails = () => {
                   className="invert-cyan"
                 />
               </Link>
-
-              <Button
-                onClick={handleDeletePost}
-                variant="ghost"
-                className={`ghost_details-delete_btn ${user.id !== post?.creator.$id && "hidden"}`}
-              >
-                <img
-                  src="/assets/icons/delete.svg"
-                  alt="delete"
-                  width={24}
-                  height={24}
-                />
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger>
+                  {isDeleting ? <Loader /> : (
+                    <img
+                    src="/assets/icons/delete.svg"
+                    alt="delete"
+                    width={24}
+                    height={24}
+                    className={`ghost_details-delete_btn ${user.id !== post?.creator.$id && "hidden"}`}
+                    />
+                  )}
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete your post
+                      and remove your data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeletePost}
+                      disabled={isDeleting}
+                    >
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
 

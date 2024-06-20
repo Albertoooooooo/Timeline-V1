@@ -51,6 +51,7 @@ const UpdateProfile = () => {
       file: value.file,
       imageUrl: currentUser.imageUrl,
       imageId: currentUser.imageId,
+      friends: currentUser.friends,
     });
 
     if (!updateUser) {

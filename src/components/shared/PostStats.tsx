@@ -14,7 +14,6 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
 
     const [likes, setLikes] = useState(likesList);
     const [isSaved, setIsSaved] = useState(false);
-    console.log("views: ", post?.viewCount)
 
     const { mutate: likePost, isPending: isLikingPost } = useLikePost();
     const { mutate: savePost, isPending: isSavingPost } = useSavePost();
@@ -79,7 +78,7 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
                         onClick={handleLikePost}
                         className={`cursor-pointer ${checkIsLiked(likes, userId) ? "" : "invert-cyan" }`}
                         />
-                        <p className="small-medium lg:base-medium">{likes.length}</p>
+                        <p className="base-medium">{likes.length}</p>
                     </>
                 )}
             </div>

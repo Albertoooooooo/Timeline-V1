@@ -137,6 +137,10 @@ export async function createPost(post: INewPost) {
         // Convert tags into array
         const tags = post.tags?.replace(/ /g,"").split(",") || [];
 
+        const likesCount = 0
+
+        const postViews = 0
+
         // Saves post to database
         const newPost = await databases.createDocument(
             appwriteConfig.databaseId,
@@ -149,6 +153,8 @@ export async function createPost(post: INewPost) {
                 imageId: uploadedFile.$id,
                 location: post.location,
                 tags: tags,
+                likesCount: likesCount,
+                postViews: postViews,
             }
         )
 
@@ -456,10 +462,54 @@ export async function deletePost(postId?: string, imageId?: string) {
     if (!postId || !imageId) return;
 
     try {
+        const currentPost = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.postCollectionId,
+            postId
+        )
+
+        if (currentPost.save && currentPost.save.length > 0) {
+            const findSavedPosts = await databases.listDocuments(
+                appwriteConfig.databaseId,
+                appwriteConfig.savesCollectionID,
+                [Query.equal("post", postId)]
+            )
+
+            const findPostCommens = await databases.listDocuments(
+                appwriteConfig.databaseId,
+                appwriteConfig.commentCollectionId,
+                [Query.equal("post", postId)]
+            )
+
+            if (findSavedPosts.documents.length === 0) {
+                throw new Error("Documents not found")
+            }
+
+            if (findPostCommens.documents.length === 0) {
+                throw new Error("Comments not found")
+            }
+            
+            for (const document of findSavedPosts.documents) {
+                await databases.deleteDocument(
+                    appwriteConfig.databaseId,
+                    appwriteConfig.savesCollectionID,
+                    document.$id
+                )
+            }
+
+            for (const document of findPostCommens.documents) {
+                await databases.deleteDocument(
+                    appwriteConfig.databaseId,
+                    appwriteConfig.commentCollectionId,
+                    document.$id
+                )
+            }
+        }
+        
         const statusCode = await databases.deleteDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.postCollectionId,
-        postId
+            appwriteConfig.databaseId,
+            appwriteConfig.postCollectionId,
+            postId
         );
 
         if (!statusCode) throw Error;

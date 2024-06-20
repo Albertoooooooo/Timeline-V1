@@ -74,8 +74,7 @@ const CommentForm = ({ comment, post, action }: CommentFormProps) => {
                 className="form-input"
                 disabled={isLoadingCreate}
               >
-                {isLoadingCreate && <Loader />}
-                {action} Comment
+                {isLoadingCreate ? ( <Loader />) : ("Create Comment") }
               </Button>
               <DrawerClose>
                 <Button variant="outline">Cancel</Button>
