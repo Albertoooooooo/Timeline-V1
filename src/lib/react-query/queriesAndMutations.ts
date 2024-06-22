@@ -220,18 +220,18 @@ export const useGetPosts = () => {
     })
 }
 
-export const useSearchPosts = (searchTerm: string) => {
+export const useSearchPosts = (searchTerm: string, currentPage: number, pageSize: number) => {
     return useQuery({
-        queryKey: [QUERY_KEYS.SEARCH_POSTS, searchTerm],
-        queryFn: () => searchPosts(searchTerm),
+        queryKey: [QUERY_KEYS.SEARCH_POSTS, searchTerm, currentPage],
+        queryFn: () => searchPosts(searchTerm, currentPage, pageSize),
         enabled: !!searchTerm
     })
 }
 
-export const useGetFilterPosts = (selectedFilter: string) => {
+export const useGetFilterPosts = (selectedFilter: string, currentPage: number, pageSize: number) => {
     return useQuery({
-        queryKey: [QUERY_KEYS.GET_FILTER_POSTS, selectedFilter],
-        queryFn: () => getFilterPosts(selectedFilter),
+        queryKey: [QUERY_KEYS.GET_FILTER_POSTS, selectedFilter, currentPage],
+        queryFn: () => getFilterPosts(selectedFilter, currentPage, pageSize),
         enabled: !!selectedFilter
     })
 }

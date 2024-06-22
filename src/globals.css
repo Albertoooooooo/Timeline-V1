@@ -121,6 +121,10 @@
     @apply flex flex-col items-center overflow-scroll md:px-8 lg:p-4 custom-scrollbar;
   }
 
+  .fixed-center {
+    @apply fixed top-0 left-0 right-0;
+  }
+
   /* All Users */
   .user-container {
     @apply max-w-5xl flex flex-col items-start w-full gap-6 md:gap-9;
@@ -252,6 +256,11 @@
   /* User card */
   .user-card {
     @apply flex-center flex-col gap-4 border border-cyan rounded-[20px] px-5 py-8;
+  }
+
+  /* Pagination */
+  .pagination-containter {
+    @apply flex justify-center items-center
   }
 }
 

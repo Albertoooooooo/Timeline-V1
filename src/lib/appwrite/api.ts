@@ -539,12 +539,19 @@ export async function getAllPosts() {
     }
 }
 
-export async function searchPosts(searchTerm: string) {
+export async function searchPosts(searchTerm: string, currentPage: number, pageSize: number) {
+    const offset = (currentPage - 1) * pageSize;
+    const queries: any[] = [
+        Query.limit(pageSize),
+        Query.offset(offset),
+        Query.search("caption", searchTerm),
+    ];
+
     try {
         const posts = await databases.listDocuments(
             appwriteConfig.databaseId,
             appwriteConfig.postCollectionId,
-            [Query.search("caption", searchTerm)]
+            queries
         )
 
         if(!posts) throw Error;
@@ -555,9 +562,12 @@ export async function searchPosts(searchTerm: string) {
     }
 }
 
-export async function getFilterPosts(selectedFilter: string) {
-    
-    const queries: any[] = [Query.limit(20)];
+export async function getFilterPosts(selectedFilter: string, currentPage: number, pageSize: number) {
+    const offset = (currentPage - 1) * pageSize;
+    const queries: any[] = [
+        Query.limit(pageSize),
+        Query.offset(offset)
+    ];
 
     switch (selectedFilter) {
         case "latest":
@@ -571,7 +581,7 @@ export async function getFilterPosts(selectedFilter: string) {
             break;
         case "most-viewed":
             queries.push(Query.orderDesc('postViews')); // Assuming 'views' is a field in your collection
-            break;
+            break;     
     }
 
     try {
