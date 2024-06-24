@@ -9,6 +9,8 @@ export const appwriteConfig = {
     postCollectionId: "663802fd0038cf88ee68",
     savesCollectionID: "6638036900206405c071",
     commentCollectionId: "666764680002664fb199",
+    snippetCollectionId: "6677bf9500344948a6a9",
+    notesCollectionId: "6677bfd6000f20f3115c",
 }
 
 export const client = new Client();

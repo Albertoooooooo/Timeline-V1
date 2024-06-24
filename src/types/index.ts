@@ -44,6 +44,20 @@ export type INavLink = {
     tags?: string;
   };
 
+  export type INewSnippet = {
+    userId: string;
+    caption: string;
+    file: File[];
+    location?: string;
+    tags?: string;
+  };
+
+  export type INewNote = {
+    userId: string;
+    snippetId: string | undefined;
+    caption: string;
+  };
+
   export type INewComment = {
     userId: string;
     postId: string | undefined;

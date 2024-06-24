@@ -1,4 +1,4 @@
-import { INewComment, INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
+import { INewComment, INewNote, INewPost, INewSnippet, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 import { ID, Query } from "appwrite";
 import { account, avatars, databases, appwriteConfig, storage } from "./config";
 import { M } from "node_modules/vite/dist/node/types.d-aGj9QkWt";
@@ -169,6 +169,55 @@ export async function createPost(post: INewPost) {
     }
 }
 
+export async function createSnippet(snippet: INewSnippet) {
+    try {
+
+        const uploadedFile = await uploadFile(snippet.file[0]);
+
+        if (!uploadedFile) throw Error;
+
+        const fileUrl = getFilePreview(uploadedFile.$id);
+
+        if (!fileUrl) {
+            await deleteFile(uploadedFile.$id)
+
+            throw Error
+        }
+
+        const tags = snippet.tags?.replace(/ /g,"").split(",") || [];
+
+        const likesCount = 0;
+
+        const snippetViews = 0;
+
+        const newSnippet = await databases.createDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.snippetCollectionId,
+            ID.unique(),
+            {
+                creator: snippet.userId,
+                caption: snippet.caption,
+                imageUrl: fileUrl,
+                imageId: uploadedFile.$id,
+                location: snippet.location,
+                tags: tags,
+                likesCount: likesCount,
+                snippetViews: snippetViews,
+            }
+        )
+
+        if (!newSnippet) {
+            await deleteFile(uploadedFile.$id)
+
+            throw Error
+        }
+
+        return newSnippet;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 export async function createComment(comment: INewComment) {
     try {
         const newComment = await databases.createDocument(
@@ -187,6 +236,27 @@ export async function createComment(comment: INewComment) {
         return newComment;
     } catch (error) {
         console.log(error)
+    }
+}
+
+export async function createNote(note: INewNote) {
+    try {
+        const newNote = await databases.createDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.notesCollectionId,
+            ID.unique(),
+            {
+                creator: note.userId,
+                snippet: note.snippetId,
+                caption: note.caption,
+            }
+        )
+
+        if (!newNote) throw Error;
+
+        return newNote;
+    } catch (error) {
+
     }
 }
 
@@ -242,7 +312,7 @@ export async function getUserPosts(userId?: string) {
       const post = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.postCollectionId,
-        [Query.equal("creator", userId), Query.orderDesc("$createdAt")]
+        [Query.equal("creator", userId), Query.orderDesc("postViews")]
       );
   
       if (!post) throw Error;
@@ -250,6 +320,23 @@ export async function getUserPosts(userId?: string) {
       return post;
     } catch (error) {
       console.log(error);
+    }
+}
+
+export async function getPostSnippets(postId?: string) {
+    if (!postId) return;
+
+    try {
+        const snippet = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.snippetCollectionId,
+            [Query.equal("post", postId), Query.orderDesc("$createdAt")]
+        );
+
+        if (!snippet) throw Error;
+
+    } catch (error) {
+        console.log(error);
     }
 }
 
@@ -266,6 +353,20 @@ export async function getPostComments(postId?: string) {
         if (!comment) throw Error;
 
         return comment;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export async function getNotes(snippetId?: string) {
+    if (!snippetId) return;
+
+    try{
+        const note = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.notesCollectionId,
+            [Query.equal("snippet", snippetId), Query.orderAsc("$createdAt")]
+        )
     } catch (error) {
         console.log(error);
     }
@@ -468,41 +569,37 @@ export async function deletePost(postId?: string, imageId?: string) {
             postId
         )
 
-        if (currentPost.save && currentPost.save.length > 0) {
+        if (currentPost.save.length > 0 || currentPost.comments.length > 0) {
             const findSavedPosts = await databases.listDocuments(
                 appwriteConfig.databaseId,
                 appwriteConfig.savesCollectionID,
                 [Query.equal("post", postId)]
             )
 
-            const findPostCommens = await databases.listDocuments(
+            const findPostComments = await databases.listDocuments(
                 appwriteConfig.databaseId,
                 appwriteConfig.commentCollectionId,
                 [Query.equal("post", postId)]
             )
 
-            if (findSavedPosts.documents.length === 0) {
-                throw new Error("Documents not found")
+            if (findSavedPosts.documents.length !== 0) {
+                for (const document of findSavedPosts.documents) {
+                    await databases.deleteDocument(
+                        appwriteConfig.databaseId,
+                        appwriteConfig.savesCollectionID,
+                        document.$id
+                    )
+                }
             }
 
-            if (findPostCommens.documents.length === 0) {
-                throw new Error("Comments not found")
-            }
-            
-            for (const document of findSavedPosts.documents) {
-                await databases.deleteDocument(
-                    appwriteConfig.databaseId,
-                    appwriteConfig.savesCollectionID,
-                    document.$id
-                )
-            }
-
-            for (const document of findPostCommens.documents) {
-                await databases.deleteDocument(
-                    appwriteConfig.databaseId,
-                    appwriteConfig.commentCollectionId,
-                    document.$id
-                )
+            if (findPostComments.documents.length !== 0) {
+                for (const document of findPostComments.documents) {
+                    await databases.deleteDocument(
+                        appwriteConfig.databaseId,
+                        appwriteConfig.commentCollectionId,
+                        document.$id
+                    )
+                }
             }
         }
         

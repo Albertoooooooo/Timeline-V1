@@ -8,7 +8,7 @@ import { useGetFilterPosts, useGetPosts, useSearchPosts } from '@/lib/react-quer
 import { useEffect, useState } from 'react'
 import { useInView } from 'react-intersection-observer';
 
-const pageSize = 3;
+const pageSize = 15;
 
 export type SearchResultProps = {
   isSearchFetching: boolean;

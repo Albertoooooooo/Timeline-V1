@@ -48,7 +48,7 @@ const PostDetails = () => {
 
   const relatedPosts = userPosts?.documents.filter(
     (userPost) => userPost.$id !== id
-  )
+  ).slice(0, 3)
 
   const handleDeletePost = async () => {
     try {
@@ -188,6 +188,24 @@ const PostDetails = () => {
 
       
       )}
+
+      <hr className="border border-cyan w-full" />
+      <h3 className="flex body-bold md:h3-bold w-full">
+        Timeline
+      </h3>
+      <div className="snippet-button">
+        <Link to={`/create-snippet/${post?.$id}`} className={`${user.id !== post?.creator.$id && "hidden"}`}>
+          <div className="snippet-container">
+            <img 
+              src="/assets/icons/plus.svg"
+              className="invert-cyan flex flex-center border border-cyan rounded-full mt-12"
+              width={40}
+              height={40}
+            />
+            <p className="text-light-4 mb-6">Add Snippets</p>
+          </div>
+        </Link>
+      </div>
 
       <hr className="border w-full border-cyan" />
       <h3 className="body-bold md:h3-bold w-full">

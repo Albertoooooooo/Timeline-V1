@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery, QueryClient, } from "@tanstack/react-query";
-import { checkCurrentAccount, createPost, createUserAccount, signInAccount, signOutAccount, getRecentPosts, likePost, savePost, deleteSavedPost, getCurrentUser, getPostById, updatePost, deletePost, searchPosts, getUsers, getUserById, updateUser, addFriend, getUserPosts, createComment, getPostComments, likeComment, getFilterPosts, getAllPosts, incrementPostViews } from "../appwrite/api";
-import { INewComment, INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
+import { checkCurrentAccount, createPost, createUserAccount, signInAccount, signOutAccount, getRecentPosts, likePost, savePost, deleteSavedPost, getCurrentUser, getPostById, updatePost, deletePost, searchPosts, getUsers, getUserById, updateUser, addFriend, getUserPosts, createComment, getPostComments, likeComment, getFilterPosts, getAllPosts, incrementPostViews, createSnippet, createNote } from "../appwrite/api";
+import { INewComment, INewNote, INewPost, INewSnippet, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 import { QUERY_KEYS } from "./queryKeys";
 
 export const useCreateUserAccount = () => {
@@ -43,6 +43,19 @@ export const useCreatePost = () => {
     })
 }
 
+export const useCreateSnippet = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (snippet: INewSnippet) => createSnippet(snippet),
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_RECENT_SNIPPETS],
+            })
+        }
+    })
+}
+
 export const useCreateComment = () => {
     const queryClient = useQueryClient();
 
@@ -51,6 +64,19 @@ export const useCreateComment = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: [QUERY_KEYS.GET_RECENT_COMMENTS]
+            })
+        }
+    })
+}
+
+export const useCreateNote = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (note: INewNote) => createNote(note),
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_RECENT_NOTES]
             })
         }
     })
@@ -202,7 +228,22 @@ export const useDeletePost = () => {
         onSuccess: (data) => {
             queryClient.invalidateQueries({
                 queryKey: [QUERY_KEYS.GET_RECENT_POSTS]
-            })
+            });
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_POSTS]
+            });
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_FILTER_POSTS]
+            });
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_USER_POSTS]
+            });
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_CURRENT_USER]
+            });
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.SEARCH_POSTS]
+            });
         }
     })
 }
