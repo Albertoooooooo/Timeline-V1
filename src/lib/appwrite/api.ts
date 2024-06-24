@@ -242,7 +242,7 @@ export async function getUserPosts(userId?: string) {
       const post = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.postCollectionId,
-        [Query.equal("creator", userId), Query.orderDesc("$createdAt")]
+        [Query.equal("creator", userId), Query.orderDesc("postViews")]
       );
   
       if (!post) throw Error;
@@ -468,41 +468,37 @@ export async function deletePost(postId?: string, imageId?: string) {
             postId
         )
 
-        if (currentPost.save && currentPost.save.length > 0) {
+        if (currentPost.save.length > 0 || currentPost.comments.length > 0) {
             const findSavedPosts = await databases.listDocuments(
                 appwriteConfig.databaseId,
                 appwriteConfig.savesCollectionID,
                 [Query.equal("post", postId)]
             )
 
-            const findPostCommens = await databases.listDocuments(
+            const findPostComments = await databases.listDocuments(
                 appwriteConfig.databaseId,
                 appwriteConfig.commentCollectionId,
                 [Query.equal("post", postId)]
             )
 
-            if (findSavedPosts.documents.length === 0) {
-                throw new Error("Documents not found")
+            if (findSavedPosts.documents.length !== 0) {
+                for (const document of findSavedPosts.documents) {
+                    await databases.deleteDocument(
+                        appwriteConfig.databaseId,
+                        appwriteConfig.savesCollectionID,
+                        document.$id
+                    )
+                }
             }
 
-            if (findPostCommens.documents.length === 0) {
-                throw new Error("Comments not found")
-            }
-            
-            for (const document of findSavedPosts.documents) {
-                await databases.deleteDocument(
-                    appwriteConfig.databaseId,
-                    appwriteConfig.savesCollectionID,
-                    document.$id
-                )
-            }
-
-            for (const document of findPostCommens.documents) {
-                await databases.deleteDocument(
-                    appwriteConfig.databaseId,
-                    appwriteConfig.commentCollectionId,
-                    document.$id
-                )
+            if (findPostComments.documents.length !== 0) {
+                for (const document of findPostComments.documents) {
+                    await databases.deleteDocument(
+                        appwriteConfig.databaseId,
+                        appwriteConfig.commentCollectionId,
+                        document.$id
+                    )
+                }
             }
         }
         

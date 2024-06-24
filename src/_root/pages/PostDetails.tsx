@@ -48,7 +48,7 @@ const PostDetails = () => {
 
   const relatedPosts = userPosts?.documents.filter(
     (userPost) => userPost.$id !== id
-  )
+  ).slice(0, 3)
 
   const handleDeletePost = async () => {
     try {
