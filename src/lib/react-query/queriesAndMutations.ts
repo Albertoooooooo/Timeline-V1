@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery, QueryClient, } from "@tanstack/react-query";
-import { checkCurrentAccount, createPost, createUserAccount, signInAccount, signOutAccount, getRecentPosts, likePost, savePost, deleteSavedPost, getCurrentUser, getPostById, updatePost, deletePost, searchPosts, getUsers, getUserById, updateUser, addFriend, getUserPosts, createComment, getPostComments, likeComment, getFilterPosts, getAllPosts, incrementPostViews, createSnippet, createNote } from "../appwrite/api";
+import { checkCurrentAccount, createPost, createUserAccount, signInAccount, signOutAccount, getRecentPosts, likePost, savePost, deleteSavedPost, getCurrentUser, getPostById, updatePost, deletePost, searchPosts, getUsers, getUserById, updateUser, addFriend, getUserPosts, createComment, getPostComments, likeComment, getFilterPosts, getAllPosts, incrementPostViews, createSnippet, createNote, getPostSnippets, getNotes, likeSnippet } from "../appwrite/api";
 import { INewComment, INewNote, INewPost, INewSnippet, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 import { QUERY_KEYS } from "./queryKeys";
 
@@ -46,15 +46,33 @@ export const useCreatePost = () => {
 export const useCreateSnippet = () => {
     const queryClient = useQueryClient();
 
+    
     return useMutation({
         mutationFn: (snippet: INewSnippet) => createSnippet(snippet),
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: [QUERY_KEYS.GET_RECENT_SNIPPETS],
+                queryKey: [QUERY_KEYS.GET_RECENT_SNIPPETS]
             })
         }
     })
-}
+  
+    // return useMutation({
+    //     mutationFn: async (snippet: INewSnippet) => {
+    //       console.log("Mutation function is called with snippet:", snippet);
+    //       const result = await createSnippet(snippet);
+    //       console.log("Snippet created:", result);
+    //       return result;
+    //     },
+    //     onSuccess: () => {
+    //       queryClient.invalidateQueries({
+    //         queryKey: [QUERY_KEYS.GET_RECENT_SNIPPETS],
+    //       });
+    //     },
+    //     onError: (error) => {
+    //       console.error("Error creating snippet:", error);
+    //     }
+    //   });
+  };
 
 export const useCreateComment = () => {
     const queryClient = useQueryClient();
@@ -111,6 +129,14 @@ export const useLikePost = () => {
                 queryKey: [QUERY_KEYS.GET_FILTER_POSTS]
             })
         }
+    })
+}
+
+export const useLikeSnippet = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ snippetId, likesArray }: { snippetId: string; likesArray: string[]}) => likeSnippet(snippetId, likesArray)
     })
 }
 
@@ -199,11 +225,27 @@ export const useGetUserPosts = (userId?: string) => {
     });
 };
 
+export const useGetPostSnippets = (postId?: string) => {
+    return useQuery({
+        queryKey: [QUERY_KEYS.GET_RECENT_SNIPPETS],
+        queryFn: () => getPostSnippets(postId),
+        enabled: !! postId
+    })
+}
+
 export const useGetPostComments = (postId?: string) => {
     return useQuery({
         queryKey: [QUERY_KEYS.GET_RECENT_COMMENTS],
         queryFn: () => getPostComments(postId),
         enabled: !! postId
+    })
+}
+
+export const useGetSnippetNotes = (snippetId?: string) => {
+    return useQuery({
+        queryKey: [QUERY_KEYS.GET_RECENT_NOTES],
+        queryFn: () => getNotes(snippetId),
+        enabled: !! snippetId
     })
 }
 

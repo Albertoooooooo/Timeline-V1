@@ -81,8 +81,6 @@ export async function getCurrentUser() {
             [Query.equal("accountId", currentAccount.$id)]
         )
 
-        console.log("current user:", currentUser)
-
         if (!currentUser) throw Error;
 
         return currentUser.documents[0];
@@ -170,8 +168,10 @@ export async function createPost(post: INewPost) {
 }
 
 export async function createSnippet(snippet: INewSnippet) {
+    console.log("before the try: ", snippet.postId)
     try {
-
+        
+        console.log("snippet query reaching api")
         const uploadedFile = await uploadFile(snippet.file[0]);
 
         if (!uploadedFile) throw Error;
@@ -184,8 +184,6 @@ export async function createSnippet(snippet: INewSnippet) {
             throw Error
         }
 
-        const tags = snippet.tags?.replace(/ /g,"").split(",") || [];
-
         const likesCount = 0;
 
         const snippetViews = 0;
@@ -196,11 +194,11 @@ export async function createSnippet(snippet: INewSnippet) {
             ID.unique(),
             {
                 creator: snippet.userId,
+                post: snippet.postId,
                 caption: snippet.caption,
-                imageUrl: fileUrl,
                 imageId: uploadedFile.$id,
                 location: snippet.location,
-                tags: tags,
+                imageUrl: fileUrl,
                 likesCount: likesCount,
                 snippetViews: snippetViews,
             }
@@ -212,6 +210,8 @@ export async function createSnippet(snippet: INewSnippet) {
             throw Error
         }
 
+        console.log(newSnippet)
+
         return newSnippet;
     } catch (error) {
         console.log(error);
@@ -219,6 +219,7 @@ export async function createSnippet(snippet: INewSnippet) {
 }
 
 export async function createComment(comment: INewComment) {
+    console.log("postId in comments: ", comment.postId)
     try {
         const newComment = await databases.createDocument(
             appwriteConfig.databaseId,
@@ -334,7 +335,8 @@ export async function getPostSnippets(postId?: string) {
         );
 
         if (!snippet) throw Error;
-
+        
+        return snippet;
     } catch (error) {
         console.log(error);
     }
@@ -431,6 +433,25 @@ export async function incrementPostViews(postId: string) {
         return updatedPost;
     } catch (error) {
         console.log(error)
+    }
+}
+
+export async function likeSnippet(snippetId: string, likesArray: string[]) {
+    try {
+        const updatedSnippet = await databases.updateDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.snippetCollectionId,
+            snippetId,
+            {
+                likes: likesArray
+            }
+        )
+
+        if (!updatedSnippet) throw Error;
+
+        return updatedSnippet
+    } catch (error) {
+        console.log(error);
     }
 }
 

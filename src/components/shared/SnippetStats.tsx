@@ -1,37 +1,37 @@
-import { useGetCurrentUser, useLikeComment } from '@/lib/react-query/queriesAndMutations';
+import { useGetCurrentUser, useLikeSnippet } from '@/lib/react-query/queriesAndMutations';
 import { checkIsLiked } from '@/lib/utils';
-import { Models } from 'appwrite'
+import { Models } from 'appwrite';
 import React, { useState } from 'react'
 
-type commentStatsProps = {
-    comment?: Models.Document;
+type snippetStatsProps = {
+    snippet?: Models.Document;
     userId: string;
 }
 
-const CommentStats = ({ comment, userId }: commentStatsProps) => {
-    const commentsList = comment?.likes.map((user: Models.Document) => user.$id)
+const SnippetStats = ({ snippet, userId }: snippetStatsProps) => {
+    const snippetsList = snippet?.likes.map((user: Models.Document) => user.$id)
 
-    const [likes, setLikes] = useState(commentsList);
-    
-    const { mutate: likeComment } = useLikeComment();
+    const [likes, setLikes] = useState(snippetsList);
 
-    const { data : currentUser} = useGetCurrentUser();
+    const { mutate: likeSnippet } = useLikeSnippet();
 
-    const handleLikeComment = (event: React.MouseEvent) => {
+    const { data: currentUser } = useGetCurrentUser();
+
+    const handleLikeSnippet = (event: React.MouseEvent) => {
         event.stopPropagation();
 
         let newLikes = [...likes];
 
         const hasLiked = newLikes.includes(userId);
 
-        if(hasLiked) {
+        if (hasLiked) {
             newLikes = newLikes.filter((id) => id !== userId)
         } else {
             newLikes.push(userId);
         }
 
         setLikes(newLikes)
-        likeComment({ commentId: comment?.$id || "", likesArray: newLikes})
+        likeSnippet({ snippetId: snippet?.$id || "", likesArray: newLikes})
     }
 
     return (
@@ -42,13 +42,15 @@ const CommentStats = ({ comment, userId }: commentStatsProps) => {
                     alt="like"
                     width={20}
                     height={20}
-                    onClick={handleLikeComment}
+                    onClick={handleLikeSnippet}
                     className={`cursor-pointer ${checkIsLiked(likes, userId) ? "" : "invert-cyan"}`}
                 />
-                <p className="small-medium lg:base-medium">{likes.length}</p>
+                <p className="small-medium lg:base-medium">
+                    {likes.length}
+                </p>
             </div>
         </div>
     )
 }
 
-export default CommentStats
+export default SnippetStats

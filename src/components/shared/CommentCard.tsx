@@ -11,13 +11,11 @@ type CommentCardProps = {
 }
 
 const CommentCard = ({comments}: CommentCardProps) => {
-    console.log("comment card being queried: ", comments)
     const { user } = useUserContext();
     // const { id } = useParams();
     // console.log("comment card id:", id)
     // const { data: post, isPending } = useGetPostById(id || "");
     // console.log("comment card:", post)
-    console.log("comments array: ", comments)
   return (
     <div className="post-card">
         <div className="flex-between">

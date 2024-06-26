@@ -21,6 +21,8 @@ type CommentFormProps = {
 }
 
 const CommentForm = ({ comment, post, action }: CommentFormProps) => {
+    console.log("post in comments: ")
+
     const { mutateAsync: createComment, isPending: isLoadingCreate } = useCreateComment();
 
     const { user } = useUserContext();
@@ -77,7 +79,12 @@ const CommentForm = ({ comment, post, action }: CommentFormProps) => {
                 {isLoadingCreate ? ( <Loader />) : ("Create Comment") }
               </Button>
               <DrawerClose>
-                <Button variant="outline">Cancel</Button>
+                <Button
+                  variant="outline"
+                  type="button"
+                >
+                    Cancel
+                </Button>
               </DrawerClose>
             </DrawerFooter>
           </form>

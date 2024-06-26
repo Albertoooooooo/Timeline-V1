@@ -3,7 +3,7 @@ import Loader from '@/components/shared/Loader';
 import PostStats from '@/components/shared/PostStats';
 import Button from '@/components/ui/button';
 import { useUserContext } from '@/context/AuthContext';
-import { useAddView, useDeletePost, useGetPostById, useGetPostComments, useGetUserPosts } from '@/lib/react-query/queriesAndMutations'
+import { useAddView, useDeletePost, useGetPostById, useGetPostComments, useGetPostSnippets, useGetUserPosts } from '@/lib/react-query/queriesAndMutations'
 import { multiFormatDateString } from '@/lib/utils';
 import { DrawerClose, Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger} from "@/components/ui/drawer"
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -13,6 +13,8 @@ import { Models } from 'appwrite';
 import { useEffect, useState } from 'react';
 import { incrementPostViews } from '@/lib/appwrite/api';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import SnippetCard from '@/components/shared/SnippetCard';
 
 const PostDetails = () => {
   const { id } = useParams();
@@ -21,12 +23,15 @@ const PostDetails = () => {
 
   const { data: post, isPending } = useGetPostById(id || "");
   const { data: userPosts, isLoading: isUserPostLoading } = useGetUserPosts(post?.creator.$id);
-  const { data: postComments, isPending: isCommentLoading, refetch: refetchComments} = useGetPostComments(post?.$id);
+  const { data: postComments, isPending: isCommentLoading, refetch: refetchComments } = useGetPostComments(post?.$id);
+  const { data: postSnippets, isPending: isSnippetLoading, refetch: refetchSnippets } = useGetPostSnippets(post?.$id);
   const { mutateAsync: deletePost, isPending: isDeletingPost } = useDeletePost();
   const { mutate: addView, isPending: isAddingView } = useAddView();
 
   const [currentComments, setCurrentComments] = useState<Models.Document[]>([])
+  const [currentSnippets, setCurrentSnippets] = useState<Models.Document[]>([])
   const [loadingComments, setLoadingComments] = useState(false);
+  const [loadingSnippets, setLoadingSnippets] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
@@ -36,8 +41,20 @@ const PostDetails = () => {
         setCurrentComments(response.data?.documents || []);
         setLoadingComments(false);
       })
+  
     }
   }, [post?.$id, refetchComments])
+
+  useEffect(() => {
+    if(post?.$id) {
+      setLoadingSnippets(true);
+      refetchSnippets().then((response) => {
+        setCurrentSnippets(response.data?.documents || []);
+        setLoadingSnippets(false);
+      })
+  
+    }
+  }, [post?.$id, refetchSnippets])
 
   useEffect(() => {
     if (id) {
@@ -189,8 +206,8 @@ const PostDetails = () => {
       
       )}
 
-      <hr className="border border-cyan w-full" />
-      <h3 className="flex body-bold md:h3-bold w-full">
+      <hr className={`${user.id !== post?.creator.$id ? "hidden" : "border border-cyan w-full"}`} />
+      <h3 className={`${user.id !== post?.creator.$id ? "hidden" : "flex body-bold md:h3-bold w-full"}`}>
         Timeline
       </h3>
       <div className="snippet-button">
@@ -205,14 +222,37 @@ const PostDetails = () => {
             <p className="text-light-4 mb-6">Add Snippets</p>
           </div>
         </Link>
+        
       </div>
 
-      <hr className="border w-full border-cyan" />
-      <h3 className="body-bold md:h3-bold w-full">
-        Comments
-      </h3>
-      <div className="flex w-full">
+      <div className="w-full">
+      {loadingSnippets ? (
+          <Loader />
+        ) : (
+      <Accordion type="single" collapsible className="accordion-border">
+          <AccordionItem value="item-1">
+            <AccordionTrigger>
+            <h3 className="flex body-bold md:h3-bold w-full">
+              Existing Timeline
+            </h3>
+            </AccordionTrigger>
+            <AccordionContent>
+              <>
+                <hr className="border border-cyan mx-5" />
+                <ul className="flex flex-col flex-1 gap-9 w-full px-5 py-5">
+                  {currentSnippets.map((snippet: Models.Document) => (
+                  <SnippetCard key={snippet.$id} snippet={snippet} />
+                  ))}
+                </ul>
+              </>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+        )}
+      </div>
 
+      <hr className={`${user.id !== post?.creator.$id ? "hidden" : "border w-full border-cyan"}`} />
+      <div className="flex w-full">
         <Drawer>
           <DrawerTrigger>
             <Button>
@@ -252,11 +292,27 @@ const PostDetails = () => {
         {loadingComments ? (
           <Loader />
         ) : (
-          <ul className="flex flex-col flex-1 gap-9 w-full">
-            {currentComments.map((comment: Models.Document) => (
-            <CommentCard key={comment.$id} comments={comment} />
-          ))}
-          </ul>
+          <>
+          <Accordion type="single" collapsible className="accordion-border">
+          <AccordionItem value="item-1">
+            <AccordionTrigger>
+            <h3 className="flex body-bold md:h3-bold w-full">
+              Comments
+            </h3>
+            </AccordionTrigger>
+            <AccordionContent>
+              <>
+                <hr className="border border-cyan mx-5" />
+                <ul className="flex flex-col flex-1 gap-9 w-full px-5 py-5">
+                  {currentComments.map((comment: Models.Document) => (
+                  <CommentCard key={comment.$id} comments={comment} />
+                  ))}
+                </ul>
+              </>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+        </>
         )}
       </div>
 
