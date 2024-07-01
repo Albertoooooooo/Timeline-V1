@@ -117,6 +117,10 @@
     background: #7878a3;
   }
 
+  .custom-scrollbar::-webkit-scrollbar-corner {
+    background-color: transparent;
+  }
+
   .common-container {
     @apply flex flex-col flex-1 items-center gap-10 overflow-scroll py-10 px-5 md:px-8 lg:p-10 custom-scrollbar;
   }
@@ -254,6 +258,10 @@
 
   .snippet-card {
     @apply bg-dark-2 w-full max-w-5xl rounded-[30px] flex-col flex lg:flex-row border border-dark-4 xl:rounded-l-[24px];
+  }
+
+  .note-card {
+    @apply bg-dark-2 border border-x-dark-2 border-y-cyan p-5 lg:p-7 w-full max-w-screen-sm;
   }
 
   .snippet-button {

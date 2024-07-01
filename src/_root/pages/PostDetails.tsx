@@ -241,7 +241,7 @@ const PostDetails = () => {
                 <hr className="border border-cyan mx-5" />
                 <ul className="flex flex-col flex-1 gap-9 w-full px-5 py-5">
                   {currentSnippets.map((snippet: Models.Document) => (
-                  <SnippetCard key={snippet.$id} snippet={snippet} />
+                    <SnippetCard key={snippet.$id} snippet={snippet} />
                   ))}
                 </ul>
               </>

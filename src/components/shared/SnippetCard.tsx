@@ -1,7 +1,7 @@
 import { useUserContext } from '@/context/AuthContext';
 import { multiFormatDateString } from '@/lib/utils';
 import { Models } from 'appwrite'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import SnippetStats from './SnippetStats';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
@@ -10,19 +10,44 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '../ui/drawer';
 import Button from '../ui/button';
 import NoteForm from '../forms/NoteForm';
+import NoteCard from './NoteCard';
+import { useGetSnippetNotes } from '@/lib/react-query/queriesAndMutations';
 
 type SnippetCardProps = {
   snippet: Models.Document;
 }
 
 const SnippetCard = ({ snippet }: SnippetCardProps) => {
+  console.log(snippet.$id)
   const { user } = useUserContext();
+  const [ isDeleting, setIsDeleting ] = useState(false);
+  const [ loadingNotes, setLoadingNotes ] = useState(false);
   const [currentNotes, setCurrentNotes] = useState<Models.Document[]>([])
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [loadingNotes, setLoadingNotes] = useState(false);
+
+  const { data: snippetNotes } = useGetSnippetNotes(snippet?.$id);
+  console.log(snippetNotes?.documents)
+
+  useEffect(() => {
+    if (snippet?.$id) {
+      setLoadingNotes(true);
+      setCurrentNotes(snippetNotes?.documents || []);
+      setLoadingNotes(false);
+    }
+  }, [snippet?.$id, snippetNotes]);
+
+  // console.log("These are snippets: ", snippet, currentNotes)
+
+  // useEffect(() => {
+  //   if (snippet?.$id) {
+  //     setLoadingNotes(true);
+  //     refetchNotes().then((response) => {
+  //       setCurrentNotes(response.data?.documents || [])
+  //       setLoadingNotes(false);
+  //     });
+  //   }
+  // }, [snippet?.$id, refetchNotes])
 
 
-  if (!snippet.creator) return;
 
   return (
     <div className="snippets-card bg-dark-2">
@@ -142,20 +167,22 @@ const SnippetCard = ({ snippet }: SnippetCardProps) => {
                           </div>
                           {loadingNotes ? (
                             <Loader />
-                          ) : (
-                            <ul className="flex flex-col flex-1 gap-9 w-full px-5 py-5">
-                              {currentNotes.map((snippet: Models.Document) => (
-                              <SnippetCard key={snippet.$id} snippet={snippet} />
-                              ))}
-                            </ul>
+                          ) : ( ""
                           )}
                         </DrawerTitle>
-                        <NoteForm />
+                        <NoteForm snippet={snippet} action="Create" />
                       </DrawerHeader>
                     </DrawerContent>
                   </Drawer>
                 </div>
               </>
+              {snippetNotes ? (
+                <ul className="flex flex-col flex-1 gap-9 w-full px-5 py-5">
+                  {snippetNotes.documents.map((note: Models.Document) => (
+                    <NoteCard key={note.$id} notes={note}/>
+                  ))}
+                </ul>
+              ) : ("No comments. write some encouraging words!")}
             </AccordionContent>
           </AccordionItem>
         </Accordion>

@@ -242,8 +242,9 @@ export const useGetPostComments = (postId?: string) => {
 }
 
 export const useGetSnippetNotes = (snippetId?: string) => {
+    console.log(snippetId)
     return useQuery({
-        queryKey: [QUERY_KEYS.GET_RECENT_NOTES],
+        queryKey: [QUERY_KEYS.GET_RECENT_NOTES, snippetId],
         queryFn: () => getNotes(snippetId),
         enabled: !! snippetId
     })

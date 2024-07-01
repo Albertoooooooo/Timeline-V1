@@ -8,7 +8,9 @@ import { Models } from "appwrite";
 const Home = () => {
   const topUsers = 10;
 
-  const  { data: posts, isPending: isPostLoading, isError: isErrorPosts } = useGetRecentPosts();
+  const { data: posts, isPending: isPostLoading, isError: isErrorPosts } = useGetRecentPosts();
+
+  console.log(posts)
 
   const { data: creators, isPending: isUserLoading, isError: isErrorCreators } = useGetUsers(topUsers);
 

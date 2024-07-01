@@ -361,6 +361,7 @@ export async function getPostComments(postId?: string) {
 }
 
 export async function getNotes(snippetId?: string) {
+    console.log(snippetId)
     if (!snippetId) return;
 
     try{
@@ -369,6 +370,10 @@ export async function getNotes(snippetId?: string) {
             appwriteConfig.notesCollectionId,
             [Query.equal("snippet", snippetId), Query.orderAsc("$createdAt")]
         )
+
+        if (!note) throw Error;
+
+        return note;
     } catch (error) {
         console.log(error);
     }
